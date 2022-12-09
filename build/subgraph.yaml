@@ -1,6 +1,6 @@
 specVersion: 0.0.5
 schema:
-  file: ./schema.graphql
+  file: schema.graphql
 dataSources:
   - kind: ethereum
     name: LSSVMPairFactory
@@ -17,15 +17,14 @@ dataSources:
         - NewPair
       abis:
         - name: LSSVMPairFactory
-          file: ./abis/LSSVMPairFactory.json
+          file: LSSVMPairFactory/abis/LSSVMPairFactory.json
       eventHandlers:
         - event: NewPair(address)
           handler: handleNewPair
       callHandlers:
         - function: createPairETH(address,address,address,uint8,uint128,uint96,uint128,uint256[])
           handler: handleCreatePairETH
-      file: ./src/lssvm-pair-factory.ts
-
+      file: LSSVMPairFactory/LSSVMPairFactory.wasm
 templates:
   - kind: ethereum
     name: LSSVMPairEnumerableETH
@@ -42,7 +41,7 @@ templates:
         - SpotPriceUpdate
       abis:
         - name: LSSVMPairEnumerableETH
-          file: ./abis/LSSVMPairEnumerableETH.json
+          file: LSSVMPairEnumerableETH/abis/LSSVMPairEnumerableETH.json
       eventHandlers:
         - event: DeltaUpdate(uint128)
           handler: handleDeltaUpdate
@@ -50,4 +49,4 @@ templates:
           handler: handleFeeUpdate
         - event: SpotPriceUpdate(uint128)
           handler: handleSpotPriceUpdate
-      file: ./src/lssvm-pair-enumerable-eth.ts
+      file: templates/LSSVMPairEnumerableETH/LSSVMPairEnumerableETH.wasm

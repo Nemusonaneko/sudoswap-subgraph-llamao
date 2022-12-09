@@ -1,153 +1,41 @@
 import {
-  BondingCurveStatusUpdate as BondingCurveStatusUpdateEvent,
-  CallTargetStatusUpdate as CallTargetStatusUpdateEvent,
-  NFTDeposit as NFTDepositEvent,
+  CreatePairETHCall,
   NewPair as NewPairEvent,
-  OwnershipTransferred as OwnershipTransferredEvent,
-  ProtocolFeeMultiplierUpdate as ProtocolFeeMultiplierUpdateEvent,
-  ProtocolFeeRecipientUpdate as ProtocolFeeRecipientUpdateEvent,
-  RouterStatusUpdate as RouterStatusUpdateEvent,
-  TokenDeposit as TokenDepositEvent
-} from "../generated/LSSVMPairFactory/LSSVMPairFactory"
-import {
-  BondingCurveStatusUpdate,
-  CallTargetStatusUpdate,
-  NFTDeposit,
-  NewPair,
-  OwnershipTransferred,
-  ProtocolFeeMultiplierUpdate,
-  ProtocolFeeRecipientUpdate,
-  RouterStatusUpdate,
-  TokenDeposit
-} from "../generated/schema"
+} from "../generated/LSSVMPairFactory/LSSVMPairFactory";
+import { LSSVMPairEnumerableETH } from "../generated/templates";
+import { NewPair, NFT, Pair } from "../generated/schema";
 
-export function handleBondingCurveStatusUpdate(
-  event: BondingCurveStatusUpdateEvent
-): void {
-  let entity = new BondingCurveStatusUpdate(
-    event.transaction.hash.concatI32(event.logIndex.toI32())
-  )
-  entity.bondingCurve = event.params.bondingCurve
-  entity.isAllowed = event.params.isAllowed
+export function handleCreatePairETH(event: CreatePairETHCall): void {
+  let nft = NFT.load(event.inputs._nft.toHexString());
+  if (!nft) {
+    nft = new NFT(event.inputs._nft.toHexString());
+    nft.address = event.inputs._nft;
+    nft.pairIds = [];
+    nft.createdBlock = event.block.number;
+    nft.createdTimestamp = event.block.timestamp;
+  }
 
-  entity.blockNumber = event.block.number
-  entity.blockTimestamp = event.block.timestamp
-  entity.transactionHash = event.transaction.hash
+  let newPair = new NewPair(event.transaction.hash.toHexString());
+  newPair.txHash = event.transaction.hash;
+  newPair.nft = nft.id;
+  newPair.initialBondingCurve = event.inputs._bondingCurve;
+  newPair.initialDelta = event.inputs._delta;
+  newPair.initialFee = event.inputs._fee;
+  newPair.initialSpot = event.inputs._spotPrice;
+  newPair.createdBlock = event.block.number;
+  newPair.createdTimestamp = event.block.timestamp;
 
-  entity.save()
-}
-
-export function handleCallTargetStatusUpdate(
-  event: CallTargetStatusUpdateEvent
-): void {
-  let entity = new CallTargetStatusUpdate(
-    event.transaction.hash.concatI32(event.logIndex.toI32())
-  )
-  entity.target = event.params.target
-  entity.isAllowed = event.params.isAllowed
-
-  entity.blockNumber = event.block.number
-  entity.blockTimestamp = event.block.timestamp
-  entity.transactionHash = event.transaction.hash
-
-  entity.save()
-}
-
-export function handleNFTDeposit(event: NFTDepositEvent): void {
-  let entity = new NFTDeposit(
-    event.transaction.hash.concatI32(event.logIndex.toI32())
-  )
-  entity.poolAddress = event.params.poolAddress
-
-  entity.blockNumber = event.block.number
-  entity.blockTimestamp = event.block.timestamp
-  entity.transactionHash = event.transaction.hash
-
-  entity.save()
+  nft.save();
+  newPair.save();
 }
 
 export function handleNewPair(event: NewPairEvent): void {
-  let entity = new NewPair(
-    event.transaction.hash.concatI32(event.logIndex.toI32())
-  )
-  entity.poolAddress = event.params.poolAddress
-
-  entity.blockNumber = event.block.number
-  entity.blockTimestamp = event.block.timestamp
-  entity.transactionHash = event.transaction.hash
-
-  entity.save()
-}
-
-export function handleOwnershipTransferred(
-  event: OwnershipTransferredEvent
-): void {
-  let entity = new OwnershipTransferred(
-    event.transaction.hash.concatI32(event.logIndex.toI32())
-  )
-  entity.previousOwner = event.params.previousOwner
-  entity.newOwner = event.params.newOwner
-
-  entity.blockNumber = event.block.number
-  entity.blockTimestamp = event.block.timestamp
-  entity.transactionHash = event.transaction.hash
-
-  entity.save()
-}
-
-export function handleProtocolFeeMultiplierUpdate(
-  event: ProtocolFeeMultiplierUpdateEvent
-): void {
-  let entity = new ProtocolFeeMultiplierUpdate(
-    event.transaction.hash.concatI32(event.logIndex.toI32())
-  )
-  entity.newMultiplier = event.params.newMultiplier
-
-  entity.blockNumber = event.block.number
-  entity.blockTimestamp = event.block.timestamp
-  entity.transactionHash = event.transaction.hash
-
-  entity.save()
-}
-
-export function handleProtocolFeeRecipientUpdate(
-  event: ProtocolFeeRecipientUpdateEvent
-): void {
-  let entity = new ProtocolFeeRecipientUpdate(
-    event.transaction.hash.concatI32(event.logIndex.toI32())
-  )
-  entity.recipientAddress = event.params.recipientAddress
-
-  entity.blockNumber = event.block.number
-  entity.blockTimestamp = event.block.timestamp
-  entity.transactionHash = event.transaction.hash
-
-  entity.save()
-}
-
-export function handleRouterStatusUpdate(event: RouterStatusUpdateEvent): void {
-  let entity = new RouterStatusUpdate(
-    event.transaction.hash.concatI32(event.logIndex.toI32())
-  )
-  entity.router = event.params.router
-  entity.isAllowed = event.params.isAllowed
-
-  entity.blockNumber = event.block.number
-  entity.blockTimestamp = event.block.timestamp
-  entity.transactionHash = event.transaction.hash
-
-  entity.save()
-}
-
-export function handleTokenDeposit(event: TokenDepositEvent): void {
-  let entity = new TokenDeposit(
-    event.transaction.hash.concatI32(event.logIndex.toI32())
-  )
-  entity.poolAddress = event.params.poolAddress
-
-  entity.blockNumber = event.block.number
-  entity.blockTimestamp = event.block.timestamp
-  entity.transactionHash = event.transaction.hash
-
-  entity.save()
+  LSSVMPairEnumerableETH.create(event.params.poolAddress);
+  let pair = new Pair(event.params.poolAddress.toHexString());
+  pair.address = event.params.poolAddress;
+  pair.initialAttributes = event.transaction.hash.toHexString();
+  pair.createdBlock = event.block.number;
+  pair.createdTimestamp = event.block.timestamp;
+  
+  pair.save();
 }
