@@ -1,0 +1,75 @@
+type BondingCurveStatusUpdate @entity(immutable: true) {
+  id: Bytes!
+  bondingCurve: Bytes! # address
+  isAllowed: Boolean! # bool
+  blockNumber: BigInt!
+  blockTimestamp: BigInt!
+  transactionHash: Bytes!
+}
+
+type CallTargetStatusUpdate @entity(immutable: true) {
+  id: Bytes!
+  target: Bytes! # address
+  isAllowed: Boolean! # bool
+  blockNumber: BigInt!
+  blockTimestamp: BigInt!
+  transactionHash: Bytes!
+}
+
+type NFTDeposit @entity(immutable: true) {
+  id: Bytes!
+  poolAddress: Bytes! # address
+  blockNumber: BigInt!
+  blockTimestamp: BigInt!
+  transactionHash: Bytes!
+}
+
+type NewPair @entity(immutable: true) {
+  id: Bytes!
+  poolAddress: Bytes! # address
+  blockNumber: BigInt!
+  blockTimestamp: BigInt!
+  transactionHash: Bytes!
+}
+
+type OwnershipTransferred @entity(immutable: true) {
+  id: Bytes!
+  previousOwner: Bytes! # address
+  newOwner: Bytes! # address
+  blockNumber: BigInt!
+  blockTimestamp: BigInt!
+  transactionHash: Bytes!
+}
+
+type ProtocolFeeMultiplierUpdate @entity(immutable: true) {
+  id: Bytes!
+  newMultiplier: BigInt! # uint256
+  blockNumber: BigInt!
+  blockTimestamp: BigInt!
+  transactionHash: Bytes!
+}
+
+type ProtocolFeeRecipientUpdate @entity(immutable: true) {
+  id: Bytes!
+  recipientAddress: Bytes! # address
+  blockNumber: BigInt!
+  blockTimestamp: BigInt!
+  transactionHash: Bytes!
+}
+
+type RouterStatusUpdate @entity(immutable: true) {
+  id: Bytes!
+  router: Bytes! # address
+  isAllowed: Boolean! # bool
+  blockNumber: BigInt!
+  blockTimestamp: BigInt!
+  transactionHash: Bytes!
+}
+
+type TokenDeposit @entity(immutable: true) {
+  id: Bytes!
+  poolAddress: Bytes! # address
+  blockNumber: BigInt!
+  blockTimestamp: BigInt!
+  transactionHash: Bytes!
+}
