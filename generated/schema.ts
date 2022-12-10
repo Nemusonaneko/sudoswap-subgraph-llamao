@@ -342,6 +342,23 @@ export class Pair extends Entity {
     }
   }
 
+  get sellPrice(): BigInt | null {
+    let value = this.get("sellPrice");
+    if (!value || value.kind == ValueKind.NULL) {
+      return null;
+    } else {
+      return value.toBigInt();
+    }
+  }
+
+  set sellPrice(value: BigInt | null) {
+    if (!value) {
+      this.unset("sellPrice");
+    } else {
+      this.set("sellPrice", Value.fromBigInt(<BigInt>value));
+    }
+  }
+
   get initialAttributes(): string {
     let value = this.get("initialAttributes");
     return value!.toString();
@@ -462,6 +479,15 @@ export class UpdateEvent extends Entity {
 
   set newSpot(value: BigInt) {
     this.set("newSpot", Value.fromBigInt(value));
+  }
+
+  get newSellPrice(): BigInt {
+    let value = this.get("newSellPrice");
+    return value!.toBigInt();
+  }
+
+  set newSellPrice(value: BigInt) {
+    this.set("newSellPrice", Value.fromBigInt(value));
   }
 
   get createdBlock(): BigInt {
