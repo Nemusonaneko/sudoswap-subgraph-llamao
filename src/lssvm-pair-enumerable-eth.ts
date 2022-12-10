@@ -42,20 +42,23 @@ export function updatePair(pair: Pair): void {
 }
 
 export function calculateSellPrice(pair: Pair): BigInt | null {
-
   const bondingCurve = pair.bondingCurve!.toHexString().toLowerCase();
   /// Exponential
   if (bondingCurve.includes("0x432f962d8209781da23fb37b6b59ee15de7d9841")) {
+    // The new spot price would become (S * delta), so selling would also yield (S * delta) ETH.
+    const buySpotPrice = pair.spot!.times(pair.delta!);
     // buySpotPrice * (delta^n - 1) / (delta - 1)
-    // = buySpotPrice / (delta - 1)
-    let inputValue = pair.spot!.div(pair.delta!.minus(BigInt.fromI32(1)));
+    // = buySpotPrice
+    let inputValue = buySpotPrice
     // Account for the protocol fee, a flat percentage of the buy amount
-    const protocolFee = inputValue.times(BigInt.fromI64(5000000000000000));
+    let protocolFee = inputValue.times(BigInt.fromI64(5000000000000000));
+    protocolFee = protocolFee.div(BigInt.fromI64(10 ** 18));
     // Account for the trade fee, only for Trade pools
-    inputValue = inputValue.plus(inputValue.times(pair.fee!));
-    // Add the protocol fee to the required input amount
-    inputValue = inputValue.plus(protocolFee);
+    let tradeFee = inputValue.times(pair.fee!);
+    tradeFee = tradeFee.div(BigInt.fromI64(10 ** 18));
 
+    inputValue = inputValue.plus(protocolFee);
+    inputValue = inputValue.plus(tradeFee);
     return inputValue;
   }
   /// Linear
@@ -67,12 +70,15 @@ export function calculateSellPrice(pair: Pair): BigInt | null {
     // This is equal to n*(buy spot price) + (delta)*(n*(n-1))/2
     // = buySpotPrice
     let inputValue = buySpotPrice;
-    const protocolFee = inputValue.times(BigInt.fromI64(5000000000000000));
+    // Account for the protocol fee, a flat percentage of the buy amount
+    let protocolFee = inputValue.times(BigInt.fromI64(5000000000000000));
+    protocolFee = protocolFee.div(BigInt.fromI64(10 ** 18));
     // Account for the trade fee, only for Trade pools
-    inputValue = inputValue.plus(inputValue.times(pair.fee!));
-    // Add the protocol fee to the required input amount
-    inputValue = inputValue.plus(protocolFee);
+    let tradeFee = inputValue.times(pair.fee!);
+    tradeFee = tradeFee.div(BigInt.fromI64(10 ** 18));
 
+    inputValue = inputValue.plus(protocolFee);
+    inputValue = inputValue.plus(tradeFee);
     return inputValue;
   }
   /// XYK
@@ -80,20 +86,23 @@ export function calculateSellPrice(pair: Pair): BigInt | null {
     bondingCurve.includes("0x7942e264e21c5e6cbba45fe50785a15d3beb1da0")
   ) {
     // get the pair's virtual nft and eth/erc20 reserves
-    const tokenBalance = pair.spot!;
-    const nftBalance = pair.delta!;
+    let tokenBalance = pair.spot!;
+    let nftBalance = pair.delta!;
     // calculate the amount to send in
     // (n * tokenBalance) / (nftBalance - n)
     // = tokenBalance/nftBalance
-    const inputValueWithoutFee = tokenBalance.div(nftBalance);
-    // add the fees to the amount to send in
-    const protocolFee = inputValueWithoutFee.times(
-      BigInt.fromI64(5000000000000000)
-    );
-    const fee = inputValueWithoutFee.times(pair.fee!);
-    const inputValue = inputValueWithoutFee.plus(protocolFee).plus(fee);
+    nftBalance = nftBalance.minus(BigInt.fromI32(1));
+    let inputValueWithoutFee = tokenBalance.div(nftBalance);
+    // Account for the protocol fee, a flat percentage of the buy amount
+    let protocolFee = inputValueWithoutFee.times(BigInt.fromI64(5000000000000000));
+    protocolFee = protocolFee.div(BigInt.fromI64(10 ** 18));
+    // Account for the trade fee, only for Trade pools
+    let tradeFee = inputValueWithoutFee.times(pair.fee!);
+    tradeFee = tradeFee.div(BigInt.fromI64(10 ** 18));
 
-    return inputValue;
+    inputValueWithoutFee = inputValueWithoutFee.plus(protocolFee);
+    inputValueWithoutFee = inputValueWithoutFee.plus(tradeFee);
+    return inputValueWithoutFee;
   }
 
   return null;

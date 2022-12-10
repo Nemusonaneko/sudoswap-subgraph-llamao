@@ -28,6 +28,7 @@ type Pair @entity {
   delta: BigInt
   fee: BigInt
   spot: BigInt
+  sellPrice: BigInt
   initialAttributes: NewPair!
   updateEvents: [UpdateEvent!]! @derivedFrom(field: "pair")
   createdBlock: BigInt!
@@ -42,6 +43,7 @@ type UpdateEvent @entity {
   newDelta: BigInt!
   newFee: BigInt!
   newSpot: BigInt!
+  newSellPrice: BigInt!
   createdBlock: BigInt!
   createdTimestamp: BigInt!
 }
