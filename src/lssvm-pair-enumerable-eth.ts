@@ -32,7 +32,7 @@ export function updatePair(pair: Pair): void {
   updateEvent.newDelta = pair.delta!;
   updateEvent.newFee = pair.fee!;
   updateEvent.newSpot = pair.spot!;
-  updateEvent.newSellPrice = pair.sellPrice!;
+  updateEvent.newSellPrice = pair.sellPrice;
   updateEvent.createdBlock = newPair.createdBlock;
   updateEvent.createdTimestamp = newPair.createdTimestamp;
 
@@ -49,7 +49,7 @@ export function calculateSellPrice(pair: Pair): BigInt | null {
     const buySpotPrice = pair.spot!.times(pair.delta!);
     // buySpotPrice * (delta^n - 1) / (delta - 1)
     // = buySpotPrice
-    let inputValue = buySpotPrice
+    let inputValue = buySpotPrice;
     // Account for the protocol fee, a flat percentage of the buy amount
     let protocolFee = inputValue.times(BigInt.fromI64(5000000000000000));
     protocolFee = protocolFee.div(BigInt.fromI64(10 ** 18));
@@ -92,9 +92,12 @@ export function calculateSellPrice(pair: Pair): BigInt | null {
     // (n * tokenBalance) / (nftBalance - n)
     // = tokenBalance/nftBalance
     nftBalance = nftBalance.minus(BigInt.fromI32(1));
+    if (nftBalance.le(BigInt.fromI32(0))) return null;
     let inputValueWithoutFee = tokenBalance.div(nftBalance);
     // Account for the protocol fee, a flat percentage of the buy amount
-    let protocolFee = inputValueWithoutFee.times(BigInt.fromI64(5000000000000000));
+    let protocolFee = inputValueWithoutFee.times(
+      BigInt.fromI64(5000000000000000)
+    );
     protocolFee = protocolFee.div(BigInt.fromI64(10 ** 18));
     // Account for the trade fee, only for Trade pools
     let tradeFee = inputValueWithoutFee.times(pair.fee!);
@@ -123,7 +126,7 @@ export function handleDeltaUpdate(event: DeltaUpdate): void {
   updateEvent.newDelta = pair.delta!;
   updateEvent.newFee = pair.fee!;
   updateEvent.newSpot = pair.spot!;
-  updateEvent.newSellPrice = pair.sellPrice!;
+  updateEvent.newSellPrice = pair.sellPrice;
   updateEvent.createdBlock = event.block.number;
   updateEvent.createdTimestamp = event.block.timestamp;
 
@@ -145,7 +148,7 @@ export function handleFeeUpdate(event: FeeUpdate): void {
   updateEvent.newDelta = pair.delta!;
   updateEvent.newFee = pair.fee!;
   updateEvent.newSpot = pair.spot!;
-  updateEvent.newSellPrice = pair.sellPrice!;
+  updateEvent.newSellPrice = pair.sellPrice;
   updateEvent.createdBlock = event.block.number;
   updateEvent.createdTimestamp = event.block.timestamp;
 
@@ -168,7 +171,7 @@ export function handleSpotPriceUpdate(event: SpotPriceUpdate): void {
   updateEvent.newDelta = pair.delta!;
   updateEvent.newFee = pair.fee!;
   updateEvent.newSpot = pair.spot!;
-  updateEvent.newSellPrice = pair.sellPrice!;
+  updateEvent.newSellPrice = pair.sellPrice;
   updateEvent.createdBlock = event.block.number;
   updateEvent.createdTimestamp = event.block.timestamp;
 

@@ -481,13 +481,21 @@ export class UpdateEvent extends Entity {
     this.set("newSpot", Value.fromBigInt(value));
   }
 
-  get newSellPrice(): BigInt {
+  get newSellPrice(): BigInt | null {
     let value = this.get("newSellPrice");
-    return value!.toBigInt();
+    if (!value || value.kind == ValueKind.NULL) {
+      return null;
+    } else {
+      return value.toBigInt();
+    }
   }
 
-  set newSellPrice(value: BigInt) {
-    this.set("newSellPrice", Value.fromBigInt(value));
+  set newSellPrice(value: BigInt | null) {
+    if (!value) {
+      this.unset("newSellPrice");
+    } else {
+      this.set("newSellPrice", Value.fromBigInt(<BigInt>value));
+    }
   }
 
   get createdBlock(): BigInt {
