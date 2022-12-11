@@ -8,7 +8,7 @@ dataSources:
     source:
       address: "0xb16c1342E617A5B6E4b631EB114483FDB289c0A4"
       abi: LSSVMPairFactory
-      startBlock: 15540000
+      startBlock: 14645816
     mapping:
       kind: ethereum/events
       apiVersion: 0.0.7

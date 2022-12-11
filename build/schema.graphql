@@ -43,7 +43,7 @@ type UpdateEvent @entity {
   newDelta: BigInt!
   newFee: BigInt!
   newSpot: BigInt!
-  newSellPrice: BigInt!
+  newSellPrice: BigInt
   createdBlock: BigInt!
   createdTimestamp: BigInt!
 }
